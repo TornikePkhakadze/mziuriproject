@@ -10,11 +10,16 @@ class Product(TimeStampdModels):
     price = models.FloatField()
     currency = models.CharField(max_length=255, choices=Currency.choices, default=Currency.GEL)
     quantity = models.PositiveSmallIntegerField()
+    
+    def __str__(self):
+        return f'item_name:{self.name}'
 
 class ProductTag(TimeStampdModels):
     name = models.CharField(max_length=255)
     products = models.ManyToManyField('products.Product', related_name='product_tags')
 
+    def __str__(self):
+        return f'item_name:{self.name}'
 
 class Review(TimeStampdModels):
     user = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, blank=True)
@@ -34,5 +39,4 @@ class FavoriteProduct(TimeStampdModels):
 class ProductsImage(TimeStampdModels):
     product = models.ForeignKey('products.Product',related_name='images',on_delete=models.CASCADE)
     image = models.ImageField(upload_to='products/')
-    
-
+     
