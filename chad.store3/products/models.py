@@ -21,3 +21,18 @@ class Review(TimeStampdModels):
     product = models.ForeignKey('products.Product', on_delete=models.CASCADE, related_name='reviews')
     content = models.TextField()
     rating = models.PositiveIntegerField(validators=[MaxValueValidator(5)])
+
+
+class Cart(TimeStampdModels):
+    products = models.ManyToManyField('products.Product', related_name='carts')
+    user = models.OneToOneField('users.User', related_name='cart', on_delete=models.CASCADE)
+
+class FavoriteProduct(TimeStampdModels):
+    products = models.ForeignKey('products.Product', related_name='favorite_products', on_delete=models.CASCADE)
+    user = models.OneToOneField('users.User', related_name='favorite_products', on_delete=models.SET_NULL, null=True, blank=True)
+
+class ProductsImage(TimeStampdModels):
+    product = models.ForeignKey('products.Product',related_name='images',on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='products/')
+    
+
