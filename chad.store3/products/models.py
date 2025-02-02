@@ -19,7 +19,7 @@ class ProductTag(TimeStampdModels):
     products = models.ManyToManyField('products.Product', related_name='product_tags')
 
     def __str__(self):
-        return f'item_name:{self.name}'
+        return f'item_tag:{self.name}'
 
 class Review(TimeStampdModels):
     user = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, blank=True)
