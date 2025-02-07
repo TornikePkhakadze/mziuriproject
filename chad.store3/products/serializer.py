@@ -102,7 +102,7 @@ class FavoriteModelSerializer(serializers.ModelSerializer):
     #     user.favorites.add(product)  
     #     return product
 
-class ProductModelTag(serializers,ModelSerializer):
+class ProductModelTag(serializers. ModelSerializer):
         class Meta:
             model = ProductTag
             fields = "__all__"

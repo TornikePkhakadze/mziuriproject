@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from .models import Product, Review, Cart, ProductTag, FavoriteProduct
-from .serializer import ReviewSerializer, CartSerializer
+from .serializer import ReviewSerializer, CartModelSerializer
 from users.models import User
 
 @api_view(['GET', 'POST'])
@@ -81,7 +81,7 @@ def cart_view(request):
         return Response({'carts': cart_list})
 
     elif request.method == 'POST':
-        serializer = CartSerializer(data=request.data, context={"request": request})
+        serializer = CartModelSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             cart = serializer.save()
             return Response(
