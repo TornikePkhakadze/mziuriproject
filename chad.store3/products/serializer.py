@@ -2,41 +2,36 @@ from rest_framework import serializers
 from .models import Product, Review, Cart, ProductTag, ProductTag, FavoriteProduct
 from users.models import User
 
-class Productserializer(serializers.Serializer):
-    name=serializers.CharField()
-    description = serializers.CharField()
-    price = serializers.FloatField()
-    currency = serializers.ChoiceField(choices=['GEL','USD','EUR'])
 
-class ReviewSerializer(serializers.Serializer):
+class ReviewSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField(write_only=True)
-    content = serializers.CharField()
-    rating = serializers.CharField()
 
-    def validate_product_id(self,value):
-        try:
-            Product.objects.get(id=value)
-        except Product.DoesNotExist:
+    class Meta:
+        model = Review
+        fields = ['product_id', 'content', 'rating']
+
+    def validate_product_id(self, value):
+        if not Product.objects.filter(id=value).exists():
             raise serializers.ValidationError("Invalid product_id. Product does not exist.")
         return value
-    
-    def validate_rating(self,value):
+
+    def validate_rating(self, value):
         if value < 1 or value > 5:
-            raise serializers.ValidationError("rating must be between 1 and 5")
+            raise serializers.ValidationError("Rating must be between 1 and 5.")
         return value
 
     def create(self, validated_data):
-        product = Product.objects.get(id=validated_data['product_id'])
+        product = Product.objects.get(id=validated_data.pop('product_id'))
         user = self.context['request'].user
+        return Review.objects.create(product=product, user=user, **validated_data)
 
-        review = Review.objects.create(
-            product=product,
-            user=user,
-            content=validated_data['content'],
-            rating=validated_data['rating'],
-        )
-        return review
-    
+
+class ProductSerializer(serializers.ModelSerializer):
+    reviews = ReviewSerializer(many=True, read_only=True)
+    class Meta:
+        exclude = ['created_at', 'updated_at'] 
+        model = Product
+
 # class PositiveIntegerField(serializers.Serializer):
 #       def raxac(self,value):
 #         Product.objects.get(Product=value)
