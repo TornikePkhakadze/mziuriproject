@@ -103,3 +103,53 @@ class ProductModelTag(serializers. ModelSerializer):
             fields = "__all__"
 
      
+
+class FavoriteProductSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default = serializers.CurrentUserDefault())
+    product_id = serializers.IntegerField(write_only=True)
+
+
+    class Meta:
+        model = FavoriteProduct    
+        fields = ["id", "user", "product_id", "products"]
+        read_only_fields = ["id", "products"]
+
+    def validate_product_id(seld,value):
+        if not Product.objects.filter(id=value).exists():
+            raise serializers.ValidationError("given product_id does not exist")
+        return value     
+    
+    def create(self, validated_data):
+        user = validated_data.pop("user")
+        product_id = validated_data.pop("product_id")
+        product = Product.objects.get(id=product_id)
+        favorite_product, created = FavoriteProduct.objects.get_or_create(user=user, product=product)
+
+        if not created:
+             raise serializers.ValidationError("product with id does not exist")
+        return validated_data
+     
+class CartSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default= serializers.CurrentUserDefault())
+    products = ProductSerializer(many=True, read_only = True)
+    product_ids = serializers.PrimaryKeyRelatedField(
+        source="products",
+        queryset=Product.objects.all(),
+        write_only=True,
+        many=True
+    )
+
+    class Meta:
+        model = Cart
+        fields = ["product_ids", "user", "products"]
+
+    def create(self, validated_data):
+        user = validated_data.pop("user")
+        products = validated_data.pop("products")
+
+        cart, _ = Cart.objects.get_or_create(user=user)
+
+        cart.products.add(*products)
+
+        return cart
+

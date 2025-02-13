@@ -3,9 +3,10 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from .models import Product, Review, Cart, ProductTag, FavoriteProduct
-from .serializer import ReviewSerializer, CartModelSerializer, ProductSerializer
+from .serializer import ReviewSerializer, CartModelSerializer, ProductSerializer, FavoriteProductSerializer, CartSerializer
 from users.models import User
-from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import GenericAPIView  
 from django.shortcuts import get_object_or_404
 from rest_framework.mixins import (ListModelMixin , CreateModelMixin ,
                                    RetrieveModelMixin, UpdateModelMixin,
@@ -127,3 +128,37 @@ def favorite_product_view(request):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class FavoriteProdcutViewSet(ListModelMixin,CreateModelMixin,RetrieveModelMixin,DestroyModelMixin, GenericAPIView):
+    queryset = FavoriteProduct.objects.all()
+    serializer_class = FavoriteProductSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = self.queryset.filter(user=self.request.user)
+        return queryset
+    
+    def get(self,request,pk=None,*args,**kwargs):
+        if pk:
+            return self.retrieve(request,*args,**kwargs)
+        return self.list(request, *args, **kwargs)
+    
+    def post(self,request,*args,**kwargs):
+        return self.create(request,*args,**kwargs)
+    
+    def delete(self,request,*args,**kwargs):
+        return self.destroy(request, *args,**kwargs)
+    
+class CartViewSet(ListModelMixin, CreateModelMixin, GenericAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = self.queryset.filter(user=self.request.user)
+        return queryset
+    
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+    
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
