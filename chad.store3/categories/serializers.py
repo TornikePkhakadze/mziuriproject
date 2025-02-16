@@ -20,4 +20,5 @@ class CategoryDetailSerializer(serializers.ModelSerializer):
     images = CategoryImageSerializer(many=True, read_only = True)
 
     class Meta:
-        model =  Categor
+        model =  Category
+        fields = ["id", "name", "products", "images"]

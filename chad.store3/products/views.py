@@ -86,7 +86,7 @@ class CartViewSet(ListModelMixin, CreateModelMixin, GenericAPIView):
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
-class ProductTagListView(ListModelMixin, GenericAPIView):
+class ProductTagListView(ListModelMixin, GenericAPIView, CreateModelMixin):
 
     queryset = ProductTag.objects.all()
     serializer_class = ProductTagSerializer
