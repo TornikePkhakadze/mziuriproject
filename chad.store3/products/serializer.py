@@ -1,5 +1,8 @@
 from rest_framework import serializers
-from .models import Product, Review, Cart, ProductTag, ProductTag, FavoriteProduct
+from .models import (Product, Review,
+                      Cart, ProductTag,
+                        ProductTag, FavoriteProduct,
+                          ProductsImage)
 from users.models import User
 
 
@@ -28,51 +31,32 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(many=True, read_only=True)
+    tag_ids = serializers.PrimaryKeyRelatedField(
+        source = "tags",
+        queryset = ProductTag.objects.all(),
+        many = True,
+        write_only = True,
+    )
     class Meta:
         exclude = ['created_at', 'updated_at'] 
         model = Product
 
-# class PositiveIntegerField(serializers.Serializer):
-#       def raxac(self,value):
-#         Product.objects.get(Product=value)
-#         if value < 1:
-#             raise serializers.ValidationError("it is not possible")
-#         return value
-    
+    def create(self, validated_data):
+        tags = validated_data.pop("tags",[])
+        product = Product.objects.create(**validated_data)
+        product.tags.set(tags)
+        return product
+
+    def update(self, instance, validated_data):
+        tags = validated_data.pop("tags", None)
+        if tags is not None:
+            instance.tags.set(tags)
+            return super().update(instance)
+
 class CartModelSerializer(serializers.ModelSerializer):
         class Meta:
             model = Cart
             fields = "__all__"
-#     products = serializers.PrimaryKeyRelatedField(
-#         queryset=Product.objects.all(), many=True
-#     )
-#     quantity = serializers.IntegerField()
-
-#     def validate_quantity(self, value):
-#         if value < 1:
-#             raise serializers.ValidationError("Quantity must be at least 1.")
-#         return value
-
-# class TagSerializer(serializers.Serializer):
-#     product_id = serializers.IntegerField(write_only=True)
-#     tag_name = serializers.CharField()
-
-#     def validate_product_id(self, value):
-#         if not Product.objects.filter(id=value).exists():
-#             raise serializers.ValidationError("Invalid product_id. Product does not exist.")
-#         return value
-
-#     def validate(self, data):
-#         product = Product.objects.get(id=data['product_id'])
-#         if product.tags.filter(name=data['tag_name']).exists():
-#             raise serializers.ValidationError("Tag name must be unique for this product.")
-#         return data
-
-#     def create(self, validated_data):
-#         product = Product.objects.get(id=validated_data['product_id'])
-#         tag, created = ProductTag.objects.get_or_create(name=validated_data['tag_name'])
-#         product.tags.add(tag)
-#         return tag
 
 class FavoriteModelSerializer(serializers.ModelSerializer):
         class Meta:
@@ -96,13 +80,6 @@ class FavoriteModelSerializer(serializers.ModelSerializer):
 
     #     user.favorites.add(product)  
     #     return product
-
-class ProductModelTag(serializers. ModelSerializer):
-        class Meta:
-            model = ProductTag
-            fields = "__all__"
-
-     
 
 class FavoriteProductSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default = serializers.CurrentUserDefault())
@@ -153,3 +130,13 @@ class CartSerializer(serializers.ModelSerializer):
 
         return cart
 
+class ProductTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductTag
+        fields = ["id","name"]
+
+
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductsImage
+        fields = ["id", "image", "product"]

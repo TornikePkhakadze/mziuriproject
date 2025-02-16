@@ -4,7 +4,6 @@ from products.choices import Currency
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 class Product(TimeStampdModels):
-
     name = models.CharField(max_length=255)
     description = models.TextField()
     price = models.FloatField()
@@ -16,7 +15,7 @@ class Product(TimeStampdModels):
 
 class ProductTag(TimeStampdModels):
     name = models.CharField(max_length=255)
-    products = models.ManyToManyField('products.Product', related_name='product_tags')
+    products = models.ManyToManyField('products.Product', related_name='tags')
 
     def __str__(self):
         return f'item_tag:{self.name}'
