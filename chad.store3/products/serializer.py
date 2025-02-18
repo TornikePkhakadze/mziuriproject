@@ -38,8 +38,9 @@ class ProductSerializer(serializers.ModelSerializer):
         write_only = True,
     )
     class Meta:
-        exclude = ['created_at', 'updated_at'] 
+        # exclude = ['created_at', 'updated_at'] 
         model = Product
+        fields = ["id", "tags", "reviews", "description", "price", "currency","quantity", "tag_ids"]
 
     def create(self, validated_data):
         tags = validated_data.pop("tags",[])

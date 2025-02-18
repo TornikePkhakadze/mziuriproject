@@ -15,24 +15,24 @@ from rest_framework.mixins import (ListModelMixin , CreateModelMixin ,
                                    RetrieveModelMixin, UpdateModelMixin,
                                    DestroyModelMixin,)
 
-class ProductViewSet(ListModelMixin,GenericAPIView,
-                     CreateModelMixin,RetrieveModelMixin,
-                     UpdateModelMixin,DestroyModelMixin
-                     ):
+class ProductViewSet(ListModelMixin, GenericAPIView,
+                         CreateModelMixin, RetrieveModelMixin,
+                           UpdateModelMixin, DestroyModelMixin):
+    
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
-    def get(self, request,pk=None, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         pk = kwargs.get("pk")
-        if pk :
-           return self.retrieve(request,*args,**kwargs)
+        if pk:
+            return self.retrieve(request, *args, **kwargs)
         return self.list(request, *args, **kwargs)
-    
+
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
-
+    
     def put(self, request, *args, **kwargs):
-        return self.update(request, *args,**kwargs)
+        return self.partial_update(request, *args, **kwargs)
     
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)

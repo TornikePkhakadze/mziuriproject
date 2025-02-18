@@ -4,7 +4,7 @@ from products.serializer import ProductSerializer
 
 
 
-class CategorySerialier(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ["id", "name"]
@@ -13,7 +13,7 @@ class CategorySerialier(serializers.ModelSerializer):
 class CategoryImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = CategoryImage
-        fields = ["id", "image", "category", "is_active"]
+        fields = ["id", "images", "category", "is_active"]
 
 class CategoryDetailSerializer(serializers.ModelSerializer):
     products = ProductSerializer(many= True, read_only = True)
