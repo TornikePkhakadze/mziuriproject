@@ -21,4 +21,8 @@ class CategoryDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model =  Category
+<<<<<<< HEAD
         fields = ["id", "name", "products", "images"]
+=======
+        fields = ["id", "name", "products", "images"]
+>>>>>>> 527e887b3351317a5571ab6d30a504a00479768d

@@ -17,14 +17,43 @@ from rest_framework.mixins import (ListModelMixin , CreateModelMixin ,
 from rest_framework.generics import ListAPIView , ListCreateAPIView
 from rest_framework.viewsets import ModelViewSet
 
+<<<<<<< HEAD
 
 class ProductViewSet(ModelViewSet):
+=======
+class ProductViewSet(ListModelMixin, GenericAPIView,
+                         CreateModelMixin, RetrieveModelMixin,
+                           UpdateModelMixin, DestroyModelMixin):
+    
+>>>>>>> 527e887b3351317a5571ab6d30a504a00479768d
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticated]
 
+<<<<<<< HEAD
 
 class ReviewViewSet(ListCreateAPIView):
+=======
+    def get(self, request, *args, **kwargs):
+        pk = kwargs.get("pk")
+        if pk:
+            return self.retrieve(request, *args, **kwargs)
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+    
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+    
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+    
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+class ReviewViewSet(ListModelMixin, CreateModelMixin, GenericAPIView):
+>>>>>>> 527e887b3351317a5571ab6d30a504a00479768d
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
@@ -53,8 +82,12 @@ class CartViewSet(ListCreateAPIView):
         queryset = self.queryset.filter(user=self.request.user)
         return queryset
 
+<<<<<<< HEAD
 
 class ProductTagListView(ListAPIView):
+=======
+class ProductTagListView(ListModelMixin, GenericAPIView, CreateModelMixin):
+>>>>>>> 527e887b3351317a5571ab6d30a504a00479768d
 
     queryset = ProductTag.objects.all()
     serializer_class = ProductTagSerializer
