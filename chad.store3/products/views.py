@@ -14,11 +14,13 @@ from django.shortcuts import get_object_or_404
 from rest_framework.mixins import (ListModelMixin , CreateModelMixin ,
                                    RetrieveModelMixin, UpdateModelMixin,
                                    DestroyModelMixin,)
-from rest_framework.generics import ListAPIView , ListCreateAPIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.generics import ListAPIView , ListCreateAPIView 
+from rest_framework.viewsets import ModelViewSet , GenericViewSet
 
-
-class ProductViewSet(ModelViewSet):
+            
+class ProductViewSet(ListModelMixin , CreateModelMixin ,
+                                   RetrieveModelMixin, UpdateModelMixin,
+                                   DestroyModelMixin,GenericViewSet):
     
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -44,19 +46,21 @@ class ReviewViewSet(ListCreateAPIView):
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
-class ReviewViewSet(ListModelMixin, CreateModelMixin, GenericAPIView):
+class ReviewViewSet(ListModelMixin, CreateModelMixin, GenericViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return self.queryset.filter(product_id=self.kwargs["product_id"])
+        return self.queryset.filter(product_id=self.kwargs["product_pk"])
         
-class FavoriteProdcutViewSet(ModelViewSet):
+class FavoriteProdcutViewSet(RetrieveModelMixin,ListModelMixin ,
+                              CreateModelMixin,DestroyModelMixin,
+                              GenericViewSet):
     queryset = FavoriteProduct.objects.all()
     serializer_class = FavoriteProductSerializer
     permission_classes = [IsAuthenticated]
-    http_method_names = ["get", "post", "delete"]
+
 
     def get_queryset(self):
         queryset = self.queryset.filter(user=self.request.user)
@@ -64,7 +68,7 @@ class FavoriteProdcutViewSet(ModelViewSet):
     
 
     
-class CartViewSet(ListCreateAPIView):
+class CartViewSet(ListModelMixin,GenericViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
     permission_classes = [IsAuthenticated]
@@ -74,18 +78,19 @@ class CartViewSet(ListCreateAPIView):
         return queryset
 
 
-class ProductTagListView(ListAPIView):
+class ProductTagViewSet(ListModelMixin,GenericViewSet):
 
     queryset = ProductTag.objects.all()
     serializer_class = ProductTagSerializer
     permission_classes = [IsAuthenticated]
     
-class ProductImageViewSet(ModelViewSet):
+class ProductImageViewSet(RetrieveModelMixin,ListModelMixin ,
+                           CreateModelMixin,DestroyModelMixin,
+                           GenericViewSet):
     queryset = ProductsImage.objects.all()
     serializer_class = ProductImageSerializer
     permission_classes = [IsAuthenticated]
-    http_method_names = ["get", "post", "delete"]
-    
+
     def get_queryset(self):
-      return self.queryset.filter(product__id = self.kwargs["product_id"])
+      return self.queryset.filter(product__id = self.kwargs["product_pk"])
     
