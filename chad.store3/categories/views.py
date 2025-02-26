@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from .models import Category, CategoryImage
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import GenericAPIView  
+from rest_framework.generics import GenericAPIView
 from django.shortcuts import get_object_or_404
 from rest_framework.mixins import (ListModelMixin , CreateModelMixin ,
                                    RetrieveModelMixin, UpdateModelMixin,
@@ -16,26 +16,33 @@ from .serializers import (CategoryDetailSerializer,CategorySerializer,
                           CategoryImageSerializer)
 
 from rest_framework.generics import ListAPIView , ListCreateAPIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet , GenericViewSet
 
 
-class CategoryListView(ListAPIView):
+class CategoryViewSet(GenericViewSet,ListModelMixin , CreateModelMixin ,
+                                   RetrieveModelMixin, UpdateModelMixin,
+                                   DestroyModelMixin,):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticated]
 
     
     
-class CategoryDetailView(ListAPIView):
+class CategoryDetailViewSet(GenericViewSet,ListModelMixin , CreateModelMixin ,
+                                   RetrieveModelMixin, UpdateModelMixin,
+                                   DestroyModelMixin,):
     queryset = Category.objects.all()
     serializer_class = CategoryDetailSerializer
     permission_classes = [IsAuthenticated]
 
 
     
-class CategoryImageListView(ListModelMixin, CreateModelMixin, GenericAPIView):
+class CategoryImageViewSet(GenericViewSet,ListModelMixin , CreateModelMixin ,
+                                   RetrieveModelMixin, UpdateModelMixin,
+                                   DestroyModelMixin,):
     queryset = CategoryImage.objects.all()
     serializer_class = CategoryImageSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         category_id = self.kwargs["category_id"]
