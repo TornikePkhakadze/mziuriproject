@@ -2,10 +2,10 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
-from .models import Product, Review, Cart, ProductTag, FavoriteProduct, ProductsImage
+from .models import Product, Review, Cart, ProductTag, FavoriteProduct, ProductsImage, CartItem
 from .serializer import (ReviewSerializer, CartModelSerializer,
                         ProductSerializer, FavoriteProductSerializer, 
-                        CartSerializer,ProductTagSerializer,
+                        CartItemSerializer,ProductTagSerializer,
                         ProductImageSerializer)
 from users.models import User
 from rest_framework.permissions import IsAuthenticated
@@ -74,14 +74,27 @@ class FavoriteProdcutViewSet(RetrieveModelMixin,ListModelMixin ,
     
 
     
-class CartViewSet(ListModelMixin,GenericViewSet):
-    queryset = Cart.objects.all()
-    serializer_class = CartSerializer
+class CartItemViewSet(ModelViewSet):
+    queryset = CartItem.objects.all()
+    serializer_class = CartItemSerializer
     permission_classes = [IsAuthenticated]
-
+    
     def get_queryset(self):
-        queryset = self.queryset.filter(user=self.request.user)
-        return queryset
+        return self.queryset.filter(cart__user=self.request.user)
+    
+    def perform_destroy(self, instance):
+        if instance.cart.user != self.request.user:
+            raise PermissionDenied("you are not allowed to delete this cart")
+        instance.delete()
+
+    def perform_update(self, serializer):
+        instance = self.get_object()
+        if instance.cart.user != self.request.user:
+            raise PermissionDenied("you cant change this item")
+        serializer.save()
+
+
+
 
 
 class ProductTagViewSet(ListModelMixin,GenericViewSet):
