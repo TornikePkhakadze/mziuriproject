@@ -8,19 +8,19 @@ from users.models import User
 
 class ReviewSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField(write_only=True)
-   
+
     class Meta:
         model = Review
         fields = ["id","user_id",'product_id', 'content', 'rating']
 
     def validate_product_id(self, value):
         if not Product.objects.filter(id=value).exists():
-            raise serializers.ValidationError("Invalid product_id. Product does not exist.")
+            raise serializers.ValidationError("Invalid product_id. Product does not exist😂.")
         return value
 
     def validate_rating(self, value):
         if value < 1 or value > 5:
-            raise serializers.ValidationError("Rating must be between 1 and 5.")
+            raise serializers.ValidationError("Rating must be between 1 and 5🙂.")
         return value
 
     def create(self, validated_data):
@@ -72,15 +72,15 @@ class CartItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CartItem
-        fields = ["id","product", "product_id","quantity",
+        fields = ["id", "product", "product_id", "quantity",
                   "price_at_of_addition", "total_price"]
         read_only_fields = ["price_at_of_addition"]
 
-    def Get_total_price(self, obj):
-        return obj.total_price()
+    def get_total_price(self, obj):
+        # Assuming total_price is calculated by price_at_of_addition * quantity
+        return obj.price_at_of_addition * obj.quantity
     
     def create(self, validated_data):
-
         product = validated_data.get("product")
         user = self.context["request"].user
         cart, created = Cart.objects.get_or_create(user=user)
@@ -94,7 +94,6 @@ class CartItemSerializer(serializers.ModelSerializer):
         instance.quantity = quantity
         instance.save()
         return instance
-    
 class CartModelSerializer(serializers.ModelSerializer):
         user = serializers.HiddenField(default = serializers.CurrentUserDefault())
         items = CartItemSerializer

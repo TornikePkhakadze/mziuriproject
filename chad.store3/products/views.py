@@ -21,6 +21,8 @@ from rest_framework.filters import SearchFilter
 from .paginationfile import ProductPagination 
 from .filters import ProductFilter,ReviewFilter
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
+
 
 class ProductViewSet(ListModelMixin , CreateModelMixin ,
                                    RetrieveModelMixin, UpdateModelMixin,
@@ -28,10 +30,11 @@ class ProductViewSet(ListModelMixin , CreateModelMixin ,
     
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     # filterset_fields = ["categories", "price"]
     filterset_class = ProductFilter
-
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+    throttle_scope = 'likes'
     filter_backends = [DjangoFilterBackend, SearchFilter]
     search_fields = ["name", "description"]
     pagination_class = ProductPagination

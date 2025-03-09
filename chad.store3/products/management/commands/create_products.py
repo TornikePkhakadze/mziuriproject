@@ -5,7 +5,7 @@ from products.choices import Currency
 from products.models import Product
 
 faker = Faker()
-
+                   
 class Command(BaseCommand):
     def handle(self, *args, **options):
         products_to_create = []
@@ -33,3 +33,4 @@ class Command(BaseCommand):
             products_to_create.append(product)
 
         Product.objects.bulk_create(products_to_create,batch_size=100)
+        
