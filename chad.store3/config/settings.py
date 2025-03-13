@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+# from do/
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -45,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework',
     
     "django_filters",
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -140,10 +143,27 @@ REST_FRAMEWORK = {
         'anon': '10/minute',
         'user': '10/day',
         'likes': '5/minute',  
-    }
+    },
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+
 }
 
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.Argon2PasswordHasher",
-    "django.contrib.auth.hashers.PBKDF2PasswordHasher"
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
 ]
+
+SWAGGER_SETTINGS = {
+    "USE_SESSION_AUTH": False,
+    "SECURITY_DEFINITIONS": {
+        "Bearer":{
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "yepe <Token>"
+        }
+    }
+    
+}
