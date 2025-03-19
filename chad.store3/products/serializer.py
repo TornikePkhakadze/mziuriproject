@@ -43,6 +43,7 @@ class ProductSerializer(serializers.ModelSerializer):
         many = True,
         write_only = True,
     )
+
     class Meta:
         model = Product
         fields = ["id","name", "tags", "reviews", "description", "price", "currency","quantity", "tag_ids"]
@@ -58,6 +59,12 @@ class ProductSerializer(serializers.ModelSerializer):
         if tags is not None:
             instance.tags.set(tags)
             return super().update(instance)
+        
+    def validate(self, data):
+        request = self.context["request"]
+        if self.instance and self.instance.user != request.user:
+            raise serializers.ValidationError("this aint your shi bro.")
+        return data
 
 
 

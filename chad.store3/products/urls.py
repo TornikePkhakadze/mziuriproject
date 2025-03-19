@@ -24,13 +24,12 @@ products_router = routers.NestedDefaultRouter(
 
 products_router.register("images", ProductImageViewSet)
 products_router.register("reviews",ReviewViewSet)
+# products_router.register(r"my_products", ProductViewSet)
 urlpatterns = [
     path("", include(router.urls)),
     path("", include(products_router.urls)),
     # path('reviews/', ReviewViewSet.as_view(), name='reviews'),
  
-
-
     # path("cart/", CartViewSet.as_view(), name = "cart"),
     # path("tags/", ProductTagListView.as_view(), name= "tags"),
 #     path("products/<int:product_id>/images/", ProductImageViewSet.as_view({"get":"list", "post":"create"}), name="images"),

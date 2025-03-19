@@ -11,8 +11,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-import os
-# from do/
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,8 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-lgl^+a-07)xn=+0*l+x29@ka3wadrh8z7l&kxm!zrw934+*v99'
+SECRET_KEY = '_vau_es_ra_aris_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -45,8 +42,7 @@ INSTALLED_APPS = [
     'categories',
 
     'rest_framework',
-    
-    "django_filters",
+    'django_filters',
     'drf_yasg',
 ]
 
@@ -133,6 +129,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
 AUTH_USER_MODEL = 'users.User'
 
 MEDIA_URL = 'media/'
@@ -141,29 +138,24 @@ MEDIA_ROOT = BASE_DIR / 'media'
 REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'anon': '10/minute',
-        'user': '10/day',
-        'likes': '5/minute',  
-    },
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
-
+        'user': '10/minute',
+        'likes': '20/minute',
+        'tag': '5/minute'
+    }
 }
 
 PASSWORD_HASHERS = [
-    "django.contrib.auth.hashers.Argon2PasswordHasher",
-    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher'
 ]
 
 SWAGGER_SETTINGS = {
     "USE_SESSION_AUTH": False,
     "SECURITY_DEFINITIONS": {
-        "Bearer":{
+        "Bearer": {
             "type": "apiKey",
             "name": "Authorization",
-            "in": "header",
-            "description": "yepe <Token>"
+            "id": "header",
+            "description": "შეიყვანე JWT ტოკენი შემდეგი პრინციპით Bearer <Token>"
         }
     }
-    
 }

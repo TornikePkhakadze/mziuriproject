@@ -9,6 +9,7 @@ class Product(TimeStampdModels):
     price = models.FloatField()
     currency = models.CharField(max_length=255, choices=Currency.choices, default=Currency.GEL)
     quantity = models.PositiveSmallIntegerField()
+    user = models.ForeignKey('users.User', null=True,on_delete=models.CASCADE, related_name="products")
     
     def __str__(self):
         return f'item_name:{self.name}'
