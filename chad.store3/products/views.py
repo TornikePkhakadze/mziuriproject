@@ -23,6 +23,9 @@ from .filters import ProductFilter,ReviewFilter
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.decorators import action
+from .permissions import IsObjectOwnerOrReadOnly
+    
+
 
 class ProductViewSet(ListModelMixin , CreateModelMixin ,
                                    RetrieveModelMixin, UpdateModelMixin,
@@ -49,7 +52,7 @@ class ProductViewSet(ListModelMixin , CreateModelMixin ,
 class ReviewViewSet(ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsObjectOwnerOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     # filterset_fields = ["rating_max", "rating_min"]
     filterset_class = ReviewFilter
@@ -62,11 +65,11 @@ class ReviewViewSet(ModelViewSet):
             raise PermissionDenied("you are not allowed to delete his review")
         instance.delete()
 
-    def perform_update(self, serializer):
-        obj = self.get_object()
-        if obj.user != self.request.user:
-            raise PermissionDenied("you cant change this review")
-        serializer.save()
+    # def perform_update(self, serializer):
+    #     obj = self.get_object()
+    #     if obj.user != self.request.user:
+    #         raise PermissionDenied("you cant change this review")
+    #     serializer.save()
 
 class FavoriteProdcutViewSet(RetrieveModelMixin,ListModelMixin ,
                               CreateModelMixin,DestroyModelMixin,
@@ -85,7 +88,7 @@ class FavoriteProdcutViewSet(RetrieveModelMixin,ListModelMixin ,
 class CartItemViewSet(ModelViewSet):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsObjectOwnerOrReadOnly]
     
     def get_queryset(self):
         return self.queryset.filter(cart__user=self.request.user)
@@ -95,11 +98,11 @@ class CartItemViewSet(ModelViewSet):
             raise PermissionDenied("you are not allowed to delete this cart")
         instance.delete()
 
-    def perform_update(self, serializer):
-        instance = self.get_object()
-        if instance.cart.user != self.request.user:
-            raise PermissionDenied("you cant change this item")
-        serializer.save()
+    # def perform_update(self, serializer):
+    #     instance = self.get_object()
+    #     if instance.cart.user != self.request.user:
+    #         raise PermissionDenied("you cant change this item")
+    #     serializer.save()
 
 
 
