@@ -2,6 +2,8 @@ from django.db import models
 from config.util_models.models import TimeStampdModels
 from products.choices import Currency
 from django.core.validators import MaxValueValidator, MinValueValidator
+from config.utils.image_validators import validate_image_size, validate_image_resolution, validate_image_count
+
 
 class Product(TimeStampdModels):
     name = models.CharField(max_length=255)
@@ -54,5 +56,14 @@ class FavoriteProduct(TimeStampdModels):
 
 class ProductsImage(TimeStampdModels):
     product = models.ForeignKey('products.Product',related_name='images',on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='products/')
+    image = models.ImageField(upload_to='products/', validators=[validate_image_resolution,validate_image_size])
      
+    def clean(self):
+        if self.product_id:
+            validate_image_count(self.product_id)
+        super().clean
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+        

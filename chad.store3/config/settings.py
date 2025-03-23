@@ -140,7 +140,7 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'anon': '10/minute',
         'user': '10/minute',
-        'likes': '20/minute',
+        'likes': '20/minute',          
         'tag': '5/minute'
     }
 }

@@ -24,7 +24,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.decorators import action
 from .permissions import IsObjectOwnerOrReadOnly
-    
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 class ProductViewSet(ListModelMixin , CreateModelMixin ,
@@ -41,13 +41,22 @@ class ProductViewSet(ListModelMixin , CreateModelMixin ,
     filter_backends = [DjangoFilterBackend, SearchFilter]
     search_fields = ["name", "description"]
     pagination_class = ProductPagination
+    parser_classes = [MultiPartParser, FormParser]
 
     @action(detail=False, methods=["GET"], url_path="my_products")
     def my_products(self, request, pk=None):
         queryset = self.queryset.filter(user=self.request.user)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-
+    
+    def create(self, request, *args, **kwargs):
+        from django.core.validators import ValidationError
+        from rest_framework.response import Response
+        from rest_framework import status
+        try:
+            super().create(request,*args, **kwargs)
+        except ValidationError as e:
+            return Response({"error":f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
 
 class ReviewViewSet(ModelViewSet):
     queryset = Review.objects.all()

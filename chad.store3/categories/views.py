@@ -19,6 +19,7 @@ from rest_framework.generics import ListAPIView , ListCreateAPIView
 from rest_framework.viewsets import ModelViewSet , GenericViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 class CategoryViewSet(GenericViewSet,ListModelMixin , CreateModelMixin ,
@@ -29,6 +30,7 @@ class CategoryViewSet(GenericViewSet,ListModelMixin , CreateModelMixin ,
     permission_classes = [IsAuthenticated] 
     filter_backends = [DjangoFilterBackend, SearchFilter]
     search_fields = ["name",]
+    parser_classes = [MultiPartParser, FormParser]
 
     
     
