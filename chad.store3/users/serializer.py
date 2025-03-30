@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
 
 User = get_user_model()
 
@@ -27,3 +30,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         validated_data.pop("password2")
         user = User.objects.create_user(**validated_data)
         return user
+    
+class PasswordRestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self,value):
+        try:
+            user = User.objects.get(email=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("ver vipove mag emailit user i")
+        return value
