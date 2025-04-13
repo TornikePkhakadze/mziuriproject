@@ -13,6 +13,16 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.contrib.auth.password_validation import validate_password
+from rest_framework import serializers
+import random
+from users.models import EmailVerificationCode
+from django.utils import timezone
+from .serializer import EmailCodeConfirmSerializer
+
+from datetime import timedelta
+
+
 
 User = get_user_model()
 
@@ -99,4 +109,69 @@ class PasswordResetConfirmViewSet(CreateModelMixin, GenericViewSet):
                 {"message": "პაროლი წარმატებით შეიცვალა"}, status=status.HTTP_200_OK
             )
 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class RegisterViewSet(GenericViewSet, CreateModelMixin):
+    def create(self, request , *args, **kwargs):
+        serializer = self.get_serializer(data= request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            self.send_verification_code(user)
+            return Response
+        
+
+        
+class RegisterViewSet(CreateModelMixin,GenericViewSet):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
+
+    
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            self.send_verification_code(user)
+            user = serializer.save()
+        return Response(
+            {"detail": "user registered succesfully. verification code sent to email"},
+            status=status.HTTP_201_CREATED)
+                                                
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def send_verification_code(self, user):
+        code = str(random.randint(100000, 999999))
+
+        EmailVerificationCode.objects.update_or_create(
+            user=user,
+            defaults={"code":code, "created_at": timezone.now()}
+        )
+        subject = "your verification"
+        message = f"Hello {user.username}, your verification code is {code}"
+        send_mail(subject, message, 'no-reply@example.com', [user.email])
+
+    @action(detail=False, methods=["post"], url_path="resend_code", serializer_class = EmailVerificationCode)
+    def resend_code(self,requset):
+        serializer = self.serializer_class(data=requset.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        user = serializer.validated_data["user"]
+        existing = EmailVerificationCode.objects.filter(user=user).first
+        if existing:
+            time_diff = timezone.now() - existing.created_at
+            if time_diff < timedelta (minutes= 1):
+                wait_seaconds = 60 - int(time_diff.total_seaconds())
+                return Response(
+                    {"detail" f"please wait {wait_seaconds} seaconds before trying again"},
+                    status= 429
+                )
+        self.send_verification_code(user)
+        return Response({"detail": "verification code resent"})    
+    
+    @action (detail=False, methods=["post"], url_path="confirm_code", serializer_class=EmailCodeConfirmSerializer)
+    def  confirm_code(self,request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            user = serializer.validated_data["user"]
+            user.is_active = True
+            user.save()
+            return Response({"message": "momxmarebeli warmatebit aris gaaqtiurebuli"}, status=status.HTTP_200_OK )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
