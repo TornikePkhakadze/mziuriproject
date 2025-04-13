@@ -4,6 +4,11 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
+
+
 
 User = get_user_model()
 
@@ -40,3 +45,36 @@ class PasswordRestSerializer(serializers.Serializer):
         except User.DoesNotExist:
             raise serializers.ValidationError("ver vipove mag emailit user i")
         return value
+    
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    uidb64 = serializers.Charfield()
+    token = serializers.Charfield()
+    password = serializers.Charfield(write_only= True, requiered= True, validators=[validate_password])
+
+    def validate(self,attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({'password': 'passwords dont match'})
+        
+        try:
+            uid = force_str(urlsafe_base64_decode(attrs["uidb64"]))
+            user = User.objects.get(pk=uid)
+        except (User.DoesNotExist, ValueError, TypeError):
+            raise serializers.ValidationError({"message": 'momxmarebeli ver moidzebna'}) 
+
+
+        token = attrs["token"]
+        if not default_token_generator.check_token(user, token):
+            raise serializers.ValidationError({"message": 'arasworian vadagasuli ari tokeni'})
+
+        attrs['user'] = user
+        return attrs
+    
+    def save(self):
+        user = self.validated_data["user"]
+        user.set_password(self.validated_data["password"])
+        user.save()
+
+
+
+
+
