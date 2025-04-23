@@ -9,7 +9,6 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 
 
-
 User = get_user_model()
 
 
@@ -47,9 +46,11 @@ class PasswordRestSerializer(serializers.Serializer):
         return value
     
 class PasswordResetConfirmSerializer(serializers.Serializer):
-    uidb64 = serializers.Charfield()
-    token = serializers.Charfield()
-    password = serializers.Charfield(write_only= True, requiered= True, validators=[validate_password])
+    uidb64 = serializers.CharField()
+    token = serializers.CharField()
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+
+
 
     def validate(self,attrs):
         if attrs['password'] != attrs['password2']:
