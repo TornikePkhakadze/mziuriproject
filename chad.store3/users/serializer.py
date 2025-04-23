@@ -7,7 +7,7 @@ from django.utils.encoding import force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
-
+from .models import EmailVerificationCode
 
 User = get_user_model()
 
@@ -33,6 +33,8 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop("password2")
         user = User.objects.create_user(**validated_data)
+        user.is_active = False
+        user.save
         return user
     
 class PasswordRestSerializer(serializers.Serializer):
@@ -48,9 +50,8 @@ class PasswordRestSerializer(serializers.Serializer):
 class PasswordResetConfirmSerializer(serializers.Serializer):
     uidb64 = serializers.CharField()
     token = serializers.CharField()
-    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
-
-
+    password = serializers.CharField(write_only= True, required= True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True, required = True)
 
     def validate(self,attrs):
         if attrs['password'] != attrs['password2']:
@@ -76,6 +77,39 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         user.save()
 
 
+class EmailCodeResendSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    
+    def validate(self, attrs):
+        email  = attrs.get("email")
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError({"message": "მომხმარებელი ვერ მოიძებნა"})
+        attrs["user"] = user
+        return attrs
+    
+class EmailCodeConfirmSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.CharField()
 
+    def validate(self,attrs):
+        email = attrs.get("email")
+        code = attrs.get("code")
+
+        try:
+            user = User.objects.get(email=email)
+            verification = EmailVerificationCode.objects.filter(user=user).first()
+
+            if not verification.code == code:
+                raise serializers.ValidationError({"message":"kodi arasworia"})
+            
+            if verification.is_expiered():
+                raise serializers.ValidationError({"message": "kodi vadagasulia"})
+        except (User.DoesNotExist, EmailVerificationCode.DoesNotExist):
+                raise serializers.ValidationError({"message": "momxmarebeli an amasan dakavshirebuli kodi ar moidzebna"})
+        
+        attrs["user"] = user
+        return attrs
 
 
