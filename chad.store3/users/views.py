@@ -21,7 +21,7 @@ from django.utils import timezone
 from .serializer import EmailCodeConfirmSerializer
 
 from datetime import timedelta
-
+from config.celery import app
 
 
 User = get_user_model()
@@ -79,13 +79,10 @@ class RestPasswordViewSet(CreateModelMixin, GenericViewSet):
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             reset_url = f"http://127.0.0.1:8000/rest_password_confirm/{uid}/{token}"
 
-            send_mail(
-                "პაროლის აღდგენა",
-                f"დააჭირეთ ლინკს რათა აღადგინოთ პაროლი: {reset_url}",
-                "ttttornikeeee@gmail.com",
-                [user.email],
-                fail_silently=False
-            )
+            subject = "პაროლის აღდგენა"
+            message = f"დააჭირეთ ლისნკის რათა აღადგინოთ პაროლი{reset_url}"
+
+            app.send_task("users.tasks.send_mail_async", args=[subject,message,user.email])
 
             return Response({"message": "წერილი წარმატებით არის გაგზავნილი"}, status=status.HTTP_200_OK)
         
@@ -146,8 +143,8 @@ class RegisterViewSet(CreateModelMixin,GenericViewSet):
         )
         subject = "your verification"
         message = f"Hello {user.username}, your verification code is {code}"
-        send_mail(subject, message, 'no-reply@example.com', [user.email])
-
+        # send_mail(subject, message, 'no-reply@example.com', [user.email])
+        app.send_task("users.tasks.send_mail_async", args=[subject,message,user.email])
     @action(detail=False, methods=["post"], url_path="resend_code", serializer_class = EmailVerificationCode)
     def resend_code(self,requset):
         serializer = self.serializer_class(data=requset.data)
