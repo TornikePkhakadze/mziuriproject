@@ -1,0 +1,10 @@
+pip install drf-nested-routers
+pip install pillow
+pip install djangorestframework-simplejwt
+pip install drf_yasg
+pip install djangorestframework
+pip install dotenv
+pip install django-redis    
+pip install django   
+pip install celery      
+pip install redis  
