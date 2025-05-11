@@ -108,15 +108,6 @@ class PasswordResetConfirmViewSet(CreateModelMixin, GenericViewSet):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class RegisterViewSet(GenericViewSet, CreateModelMixin):
-    def create(self, request , *args, **kwargs):
-        serializer = self.get_serializer(data= request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            self.send_verification_code(user)
-            return Response
-        
-
         
 class RegisterViewSet(CreateModelMixin,GenericViewSet):
     queryset = User.objects.all()
