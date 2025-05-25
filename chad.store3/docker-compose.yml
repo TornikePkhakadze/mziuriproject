@@ -1,8 +1,8 @@
-version: "3.8"
+version: '3.8'
 
 services:
   web:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     ports:
@@ -10,7 +10,10 @@ services:
     volumes:
       - ./media:/app/media
     depends_on:
+      - db
       - redis
+    env_file:
+      - .env
     networks:
       - app_network
 
@@ -22,10 +25,24 @@ services:
       - redis_data:/data
     networks:
       - app_network
-    
+
+  db:
+    image: postgres:15
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app_network
+
 networks:
   app_network:
     driver: bridge
 
 volumes:
   redis_data:
+  postgres_data:
+
+
